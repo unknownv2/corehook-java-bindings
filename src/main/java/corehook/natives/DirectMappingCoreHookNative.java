@@ -23,5 +23,5 @@ public final class DirectMappingCoreHookNative {
     private DirectMappingCoreHookNative() {
     }
 
-    public static native long DetourFindFunction(String module, String function);
+    public static native Pointer DetourFindFunction(String module, String function);
 }

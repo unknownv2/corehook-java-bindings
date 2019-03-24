@@ -1,4 +1,5 @@
 package corehook;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.LongByReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,6 @@ public class CoreHookTest {
 
     @Test
     void findFunctionAddress() {
-        assertNotEquals(0, corehook.FindFunction("kernel32.dll", "CreateFileW"));
+        assertNotEquals(Pointer.NULL, corehook.FindFunction("kernel32.dll", "CreateFileW"));
     }
 }
