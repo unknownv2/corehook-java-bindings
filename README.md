@@ -1,0 +1,1 @@
+# Java bindings for CoreHook
