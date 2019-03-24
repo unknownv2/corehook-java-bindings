@@ -1,9 +1,6 @@
 package corehook.natives;
 
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
-import com.sun.jna.Pointer;
+import com.sun.jna.*;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import corehook.jna.CoreHookTypeMapper;
@@ -24,4 +21,10 @@ public final class DirectMappingCoreHookNative {
     }
 
     public static native Pointer DetourFindFunction(String module, String function);
+
+    public static native int DetourInstallHook(Pointer entryPoint, Callback hookProcedure, Pointer callback, byte[] handle);
+
+    public static native void DetourSetGlobalExclusiveACL(int[] threadIdList, int threadCount);
+
+    public static native void DetourSetExclusiveACL(int[] threadIdList, int threadCount, byte[] handle);
 }
