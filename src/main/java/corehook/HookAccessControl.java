@@ -5,8 +5,8 @@ import corehook.natives.DirectMappingCoreHookNative;
 public class HookAccessControl {
     private final int[] DefaultThreadAcl = new int[0];
 
-    public boolean isExclusive;
-    public byte[] handle;
+    private boolean isExclusive;
+    private byte[] handle;
     private int[] acl = DefaultThreadAcl;
 
     public HookAccessControl(byte[] handle) {
