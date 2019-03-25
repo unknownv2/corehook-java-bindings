@@ -14,7 +14,7 @@ public class HookAccessControl {
         this.handle = handle;
     }
 
-    public void SetExclusiveAcl(int[] acl) {
+    public void setExclusiveAcl(int[] acl) {
         isExclusive = true;
         this.acl = acl.clone();
 
@@ -26,7 +26,7 @@ public class HookAccessControl {
         }
     }
 
-    public void SetInclusiveAcl(int[] acl) {
+    public void setInclusiveAcl(int[] acl) {
         isExclusive = false;
 
         this.acl = acl.clone();
@@ -39,7 +39,7 @@ public class HookAccessControl {
         }
     }
 
-    public int[] GetEntries() {
+    public int[] getEntries() {
         return this.acl.clone();
     }
 }

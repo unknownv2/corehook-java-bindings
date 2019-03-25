@@ -18,12 +18,12 @@ public class CoreHookTest {
 
     @Test
     void findFunctionAddress() {
-        assertNotEquals(Pointer.NULL, corehook.FindFunction("kernel32.dll", "CreateFileW"));
+        assertNotEquals(Pointer.NULL, corehook.findFunction("kernel32.dll", "CreateFileW"));
     }
 
     @Test
     void findPrivateFunctionAddress() {
-        assertNotEquals(Pointer.NULL, corehook.FindFunction("kernel32.dll", "InternalFindAtom"));
+        assertNotEquals(Pointer.NULL, corehook.findFunction("kernel32.dll", "InternalFindAtom"));
     }
 
     // Win32 file access constants.
@@ -37,10 +37,10 @@ public class CoreHookTest {
     @Test
     void createFunctionDetour_shouldCallbackCustomHandlerForCreateFile() {
         detouredCreateFile = false;
-        Pointer createFileFunctionAddress = corehook.FindFunction("kernel32.dll", "CreateFileW");
+        Pointer createFileFunctionAddress = corehook.findFunction("kernel32.dll", "CreateFileW");
         assertNotEquals(Pointer.NULL, createFileFunctionAddress);
 
-        LocalHook hook = corehook.Create(createFileFunctionAddress, new CoreHookDetourCallback() {
+        LocalHook hook = corehook.create(createFileFunctionAddress, new CoreHookDetourCallback() {
             public WinNT.HANDLE createFile(Pointer fileName, int desiredAccess, int shareMode, WinBase.SECURITY_ATTRIBUTES securityAttributes, int creationDisposition, int flagsAndAttributes, WinNT.HANDLE templateFile) {
                 detouredCreateFile = true;
                 return Kernel32.INSTANCE.CreateFile( fileName.getWideString(0), desiredAccess, shareMode, securityAttributes, creationDisposition, flagsAndAttributes, templateFile);
@@ -48,7 +48,7 @@ public class CoreHookTest {
         }, this);
 
         // Enable the detour for all threads.
-        hook.AccessControl.SetExclusiveAcl(new int[0]);
+        hook.getAccessControl().setExclusiveAcl(new int[0]);
         // Call kernel32.dll!CreateFile, which should call the handle.
         WinNT.HANDLE handle = Kernel32.INSTANCE.CreateFile("file.txt", GENERIC_ACCESS, EXCLUSIVE_ACCESS, null, OPEN_EXISTING, 0, null);
 
