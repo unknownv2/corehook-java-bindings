@@ -27,7 +27,7 @@ public class CoreHookTest {
     }
 
     // Win32 file access constants.
-    static int GENERIC_ACCESS = 268435456;
+    static int GENERIC_ACCESS = -2147483648;
     static int EXCLUSIVE_ACCESS = 0;
     static int OPEN_EXISTING = 3;
 
@@ -37,14 +37,13 @@ public class CoreHookTest {
     @Test
     void createFunctionDetour_shouldCallbackCustomHandlerForCreateFile() {
         detouredCreateFile = false;
-        Pointer createFile = corehook.FindFunction("kernel32.dll", "CreateFileW");
+        Pointer createFileFunctionAddress = corehook.FindFunction("kernel32.dll", "CreateFileW");
+        assertNotEquals(Pointer.NULL, createFileFunctionAddress);
 
-        assertNotEquals(Pointer.NULL, createFile);
-
-        LocalHook hook = corehook.Create(createFile, new CoreHookDetourCallback() {
-            public WinNT.HANDLE createFile(String fileName, int desiredAccess, int shareMode, WinBase.SECURITY_ATTRIBUTES securityAttributes, int creationDisposition, int flagsAndAttributes, WinNT.HANDLE templateFile) {
+        LocalHook hook = corehook.Create(createFileFunctionAddress, new CoreHookDetourCallback() {
+            public WinNT.HANDLE createFile(Pointer fileName, int desiredAccess, int shareMode, WinBase.SECURITY_ATTRIBUTES securityAttributes, int creationDisposition, int flagsAndAttributes, WinNT.HANDLE templateFile) {
                 detouredCreateFile = true;
-                return Kernel32.INSTANCE.CreateFile(fileName, desiredAccess, shareMode, securityAttributes, creationDisposition, flagsAndAttributes, templateFile);
+                return Kernel32.INSTANCE.CreateFile( fileName.getWideString(0), desiredAccess, shareMode, securityAttributes, creationDisposition, flagsAndAttributes, templateFile);
             }
         }, this);
 
@@ -52,6 +51,11 @@ public class CoreHookTest {
         hook.AccessControl.SetExclusiveAcl(new int[0]);
         // Call kernel32.dll!CreateFile, which should call the handle.
         WinNT.HANDLE handle = Kernel32.INSTANCE.CreateFile("file.txt", GENERIC_ACCESS, EXCLUSIVE_ACCESS, null, OPEN_EXISTING, 0, null);
+
         assertTrue(detouredCreateFile);
+        // Close the handle if it is valid.
+        if(!WinBase.INVALID_HANDLE_VALUE.equals(handle)) {
+            Kernel32.INSTANCE.CloseHandle(handle);
+        }
     }
 }
