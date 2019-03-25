@@ -1,9 +1,7 @@
 package corehook;
 
+import com.sun.jna.win32.StdCallLibrary;
 
-import com.sun.jna.Callback;
-import com.sun.jna.ptr.LongByReference;
-
-public interface CoreHookDetourCallback extends Callback {
+public interface CoreHookDetourCallback extends StdCallLibrary.StdCallCallback {
 
 }
