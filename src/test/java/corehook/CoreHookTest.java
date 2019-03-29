@@ -2,6 +2,7 @@ package corehook;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.sun.jna.platform.win32.Kernel32;
@@ -12,8 +13,10 @@ public class CoreHookTest {
     private CoreHook corehook;
 
     @BeforeEach
-    void setUp() {
-        corehook = new CoreHook();
+    void setUp() { corehook = new CoreHook(); }
+
+    @AfterEach
+    void tearDown() {
     }
 
     @Test
@@ -47,9 +50,9 @@ public class CoreHookTest {
             }
         }, this);
 
-        // Enable the detour for all threads.
-        hook.getAccessControl().setExclusiveAcl(new int[0]);
-        // Call kernel32.dll!CreateFile, which should call the handle.
+        // Enable the detour for the current thread.
+        hook.getAccessControl().setInclusiveAcl(new int[] { 0 });
+        // Call kernel32.dll!CreateFile, which should call the detour handler.
         WinNT.HANDLE handle = Kernel32.INSTANCE.CreateFile("file.txt", GENERIC_ACCESS, EXCLUSIVE_ACCESS, null, OPEN_EXISTING, 0, null);
 
         assertTrue(detouredCreateFile);
@@ -57,5 +60,32 @@ public class CoreHookTest {
         if(!WinBase.INVALID_HANDLE_VALUE.equals(handle)) {
             Kernel32.INSTANCE.CloseHandle(handle);
         }
+        hook.close();
+    }
+
+    static boolean didNotDetourCreateFile = false;
+    @Test
+    void createFunctionDetour_shouldNotCallbackCustomHandlerForCreateFileWhenNotEnabled() {
+        didNotDetourCreateFile = false;
+        Pointer createFileFunctionAddress = corehook.findFunction("kernel32.dll", "CreateFileW");
+        assertNotEquals(Pointer.NULL, createFileFunctionAddress);
+
+        // The detour is created by is not enabled.
+        LocalHook hook = corehook.create(createFileFunctionAddress, new CoreHookDetourCallback() {
+            public WinNT.HANDLE createFile(Pointer fileName, int desiredAccess, int shareMode, WinBase.SECURITY_ATTRIBUTES securityAttributes, int creationDisposition, int flagsAndAttributes, WinNT.HANDLE templateFile) {
+                didNotDetourCreateFile = true;
+                return Kernel32.INSTANCE.CreateFile( fileName.getWideString(0), desiredAccess, shareMode, securityAttributes, creationDisposition, flagsAndAttributes, templateFile);
+            }
+        }, this);
+
+        // Call kernel32.dll!CreateFile, which should call the detour handler.
+        WinNT.HANDLE handle = Kernel32.INSTANCE.CreateFile("file.txt", GENERIC_ACCESS, EXCLUSIVE_ACCESS, null, OPEN_EXISTING, 0, null);
+
+        assertFalse(didNotDetourCreateFile);
+        // Close the handle if it is valid.
+        if(!WinBase.INVALID_HANDLE_VALUE.equals(handle)) {
+            Kernel32.INSTANCE.CloseHandle(handle);
+        }
+        hook.close();
     }
 }
