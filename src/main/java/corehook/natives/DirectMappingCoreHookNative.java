@@ -5,7 +5,6 @@ import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.ptr.IntByReference;
 import corehook.CoreHookDetourCallback;
-import corehook.jna.CoreHookTypeMapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,4 +37,6 @@ public final class DirectMappingCoreHookNative {
     public static native void DetourSetInclusiveACL(int[] threadIdList, int threadCount, byte[] handle);
 
     public static native void DetourSetGlobalInclusiveACL(int[] threadIdList, int threadCount);
+
+    public static native void DetourUninstallHook(byte[] handle);
 }
