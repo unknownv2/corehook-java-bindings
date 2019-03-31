@@ -63,7 +63,7 @@ public class LocalHook implements AutoCloseable {
         if(!isClosed && handle != null) {
             DirectMappingCoreHookNative.DetourUninstallHook(this.handle);
 
-            // Reset the hooking  fields.
+            // Reset the hooking fields.
             callback = null;
             detourFunction = null;
             targetAddress = Pointer.NULL;

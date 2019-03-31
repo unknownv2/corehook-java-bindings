@@ -1,4 +1,5 @@
 package corehook;
+
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinNT;
@@ -30,12 +31,12 @@ public class CoreHookTest {
     }
 
     // Win32 file access constants.
-    static int GENERIC_ACCESS = -2147483648;
-    static int EXCLUSIVE_ACCESS = 0;
-    static int OPEN_EXISTING = 3;
+    private static int GENERIC_ACCESS = -2147483648;
+    private static int EXCLUSIVE_ACCESS = 0;
+    private static int OPEN_EXISTING = 3;
 
     // Boolean for checking whether a detour callback was executed for 'CreateFile'.
-    static boolean detouredCreateFile = false;
+    private static boolean detouredCreateFile = false;
 
     @Test
     void createFunctionDetour_shouldCallbackCustomHandlerForCreateFile() {
@@ -63,7 +64,8 @@ public class CoreHookTest {
         hook.close();
     }
 
-    static boolean didNotDetourCreateFile = false;
+    private static boolean didNotDetourCreateFile = false;
+
     @Test
     void createFunctionDetour_shouldNotCallbackCustomHandlerForCreateFileWhenNotEnabled() {
         didNotDetourCreateFile = false;
@@ -78,7 +80,7 @@ public class CoreHookTest {
             }
         }, this);
 
-        // Call kernel32.dll!CreateFile, which should call the detour handler.
+        // Call kernel32.dll!CreateFile, which should not call the detour handler.
         WinNT.HANDLE handle = Kernel32.INSTANCE.CreateFile("file.txt", GENERIC_ACCESS, EXCLUSIVE_ACCESS, null, OPEN_EXISTING, 0, null);
 
         assertFalse(didNotDetourCreateFile);
