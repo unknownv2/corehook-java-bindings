@@ -65,18 +65,18 @@ public class CoreHookTest {
         hook.close();
     }
 
-    private static boolean didNotDetourCreateFile = false;
+    private static boolean didNotDetourCreateFile = true;
 
     @Test
     void createFunctionDetour_shouldNotCallbackCustomHandlerForCreateFileWhenNotEnabled() {
-        didNotDetourCreateFile = false;
+        didNotDetourCreateFile = true;
         Pointer createFileFunctionAddress = corehook.findFunction("kernel32.dll", "CreateFileW");
         assertNotEquals(Pointer.NULL, createFileFunctionAddress);
 
         // The detour is created but is not enabled, so the callback is not executed.
         LocalHook hook = corehook.create(createFileFunctionAddress, new CoreHookDetourCallback() {
             public WinNT.HANDLE createFile(Pointer fileName, int desiredAccess, int shareMode, WinBase.SECURITY_ATTRIBUTES securityAttributes, int creationDisposition, int flagsAndAttributes, WinNT.HANDLE templateFile) {
-                didNotDetourCreateFile = true;
+                didNotDetourCreateFile = false;
                 return Kernel32.INSTANCE.CreateFile( fileName.getWideString(0), desiredAccess, shareMode, securityAttributes, creationDisposition, flagsAndAttributes, templateFile);
             }
         }, this);
@@ -84,7 +84,7 @@ public class CoreHookTest {
         // Call kernel32.dll!CreateFile, which should not call the detour handler.
         WinNT.HANDLE handle = Kernel32.INSTANCE.CreateFile("file.txt", GENERIC_ACCESS, EXCLUSIVE_ACCESS, null, OPEN_EXISTING, 0, null);
 
-        assertFalse(didNotDetourCreateFile);
+        assertTrue(didNotDetourCreateFile);
         // Close the handle if it is valid.
         if(!WinBase.INVALID_HANDLE_VALUE.equals(handle)) {
             Kernel32.INSTANCE.CloseHandle(handle);
