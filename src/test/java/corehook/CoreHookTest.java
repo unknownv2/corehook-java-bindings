@@ -44,6 +44,7 @@ public class CoreHookTest {
         Pointer createFileFunctionAddress = corehook.findFunction("kernel32.dll", "CreateFileW");
         assertNotEquals(Pointer.NULL, createFileFunctionAddress);
 
+        // The detour is enabled, so the callback should be executed.
         LocalHook hook = corehook.create(createFileFunctionAddress, new CoreHookDetourCallback() {
             public WinNT.HANDLE createFile(Pointer fileName, int desiredAccess, int shareMode, WinBase.SECURITY_ATTRIBUTES securityAttributes, int creationDisposition, int flagsAndAttributes, WinNT.HANDLE templateFile) {
                 detouredCreateFile = true;
@@ -72,7 +73,7 @@ public class CoreHookTest {
         Pointer createFileFunctionAddress = corehook.findFunction("kernel32.dll", "CreateFileW");
         assertNotEquals(Pointer.NULL, createFileFunctionAddress);
 
-        // The detour is created by is not enabled.
+        // The detour is created but is not enabled, so the callback is not executed.
         LocalHook hook = corehook.create(createFileFunctionAddress, new CoreHookDetourCallback() {
             public WinNT.HANDLE createFile(Pointer fileName, int desiredAccess, int shareMode, WinBase.SECURITY_ATTRIBUTES securityAttributes, int creationDisposition, int flagsAndAttributes, WinNT.HANDLE templateFile) {
                 didNotDetourCreateFile = true;
