@@ -21,9 +21,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
         <java.version>11</java.version>
-        <jna.version>4.5.1</jna.version>
+        <jna.version>5.2.0</jna.version>
         <junit.jupiter.version>5.2.0</junit.jupiter.version>
         <junit.platform.version>1.2.0</junit.platform.version>
     </properties>
@@ -63,7 +62,6 @@
 
     <build>
         <plugins>
-            <!-- Configure Maven to compile using Java 10. -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.7.0</version>
@@ -82,7 +80,6 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-
                 </configuration>
                 <executions>
                     <execution>
